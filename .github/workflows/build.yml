@@ -1,0 +1,33 @@
+name: SonarQube
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_WRAPPER_OUT_DIR: bw-output
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
+
+      - name: Build Project
+        run: |
+          build-wrapper-linux-x86-64 --out-dir $BUILD_WRAPPER_OUT_DIR \
+          g++ main.cpp -o main
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_HOST_URL: http://your-sonarqube-server:9000
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
